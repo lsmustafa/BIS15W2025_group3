@@ -8,6 +8,12 @@ date: "2025-02-20"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+#library(tidyverse)
+library(janitor)
+```
+
+
 ## R Markdown
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
@@ -17,4 +23,18 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 netflix <- read_csv("data/netflix_titles.csv")
 ```
+
+```{r}
+imdb_top_1000 <- read_csv("data/imdb_top_1000.csv") %>% clean_names()
+```
+```{r}
+netflix_credits <- read_csv("data/credits.csv")
+```
+```{r}
+imdb_top_1000 %>% 
+  group_by(director) %>% 
+  summarize(avg_rating=mean(imdb_rating)) %>% 
+  arrange(-avg_rating)
+```
+
 
