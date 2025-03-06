@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-#library(tidyverse)
+library(tidyverse)
 library(janitor)
 ```
 
@@ -27,14 +27,18 @@ netflix <- read_csv("data/netflix_titles.csv")
 ```{r}
 imdb_top_1000 <- read_csv("data/imdb_top_1000.csv") %>% clean_names()
 ```
+
 ```{r}
 netflix_credits <- read_csv("data/credits.csv")
 ```
+```{r}
+glimpse(netflix_credits)
+```
+
 ```{r}
 imdb_top_1000 %>% 
   group_by(director) %>% 
   summarize(avg_rating=mean(imdb_rating)) %>% 
   arrange(-avg_rating)
 ```
-
 
