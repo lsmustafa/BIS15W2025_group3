@@ -1,0 +1,52 @@
+---
+title: "ShinyApp"
+output: html_document
+date: "2025-03-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#install.packages("shiny")
+#install.packages("shinydashboard")
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(shiny)
+library(shinydashboard)
+require(janitor)
+```
+
+```{r}
+netflix %>% read_csv("data/netflix_titles.csv")
+```
+
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(titlePanel("Netflix App"),
+                selectInput("x",
+                            "Select Fill Variable",
+                            choices=unique(netflix$listed_in),
+                            selected="Documentaries"),
+                 plotOutput("plot", width = "600px", height = "600px"))
+  
+
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+            netflix %>% 
+             filter(listed_in==input$x) %>% 
+             ggplot(aes(x=title, y=duration))+
+             geom_col(fill="steelblue", color="black", alpha=0.8)
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+

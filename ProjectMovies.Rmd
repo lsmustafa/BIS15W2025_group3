@@ -39,11 +39,29 @@ imdb_top_1000 %>%
 Laiba:
 
 ```{r}
+netflix %>% 
+  separate(date_added, into= c("day_added", "year_added"), sep = ",")
+```
+
+```{r}
+netflix %>% 
+  filter(str_detect(listed_in,"International Movies")) %>% 
+  group_by(country) %>% 
+  summarize(total=n_distinct(title)) %>% 
+  arrange(-total) %>% 
+  top_n(11, total) %>% 
+  ggplot(aes(x=reorder(country, total), y=total, fill=country)) +
+  geom_col()+
+  coord_flip()+
+       x="Country",
+       y="Movies")
 
 ```
 
 
+```{r}
 
+```
 
 
 
