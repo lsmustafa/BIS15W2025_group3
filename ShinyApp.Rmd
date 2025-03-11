@@ -60,3 +60,88 @@ shinyApp(ui, server)
 
 ```
 
+```{r}
+library(shiny)
+library(shinythemes)
+
+ui <- fluidPage(
+  theme = shinytheme("superhero"),
+  titlePanel("Find Your Next Movie 🍿"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("genre", "Choose a Genre:", 
+                  choices = unique(unlist(strsplit(netflix$listed_in, ", "))),
+                  selected = "Drama"),
+      
+      selectInput("rating", "Choose a Rating:", 
+                  choices = unique(netflix$rating),
+                  selected = "PG-13"),
+      
+      selectInput("country", "Choose a Country:", 
+                  choices = unique(unlist(strsplit(netflix$country, ", "))),
+                  selected = "United States"),
+      
+      radioButtons("length", "Select Movie Length:", 
+                   choices = c("Short (< 90 min)", "Medium (90-120 min)", "Long (> 120 min)"),
+                   selected = "Medium (90-120 min)"),
+      
+      actionButton("random", "Pick a Random Movie 🎲", class = "btn-primary"),
+      
+      br(), br(),
+      tableOutput("recommendTable")
+    ),
+    
+    mainPanel(
+      plotOutput("lengthPlot", width = "600px", height = "400px"),
+      textOutput("randomMovie")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  filtered_data <- reactive({
+    netflix_clean %>%
+      separate_rows(listed_in, sep = ", ") %>%  # Handle multiple genres
+      filter(listed_in == input$genre,
+             rating == input$rating,
+             str_detect(country, input$country)) %>%
+      filter(
+        case_when(
+          input$length == "Short (< 90 min)" ~ duration_mins < 90,
+          input$length == "Medium (90-120 min)" ~ duration_mins >= 90 & duration_mins <= 120,
+          input$length == "Long (> 120 min)" ~ duration_mins > 120
+        )
+      )
+  })
+  
+  output$recommendTable <- renderTable({
+    filtered_data() %>%
+      select(title, type, duration_mins, rating, country) %>%
+      head(10)  
+  })
+  
+  output$lengthPlot <- renderPlot({
+    filtered_data() %>%
+      ggplot(aes(x = duration_mins)) +
+      geom_histogram(binwidth = 15, fill = "red3", color = "black", alpha = 0.4) +
+      labs(title = "Distribution of Movie Durations", x = "Duration (minutes)", y = "Count") +
+      theme_minimal()
+  })
+  
+ observeEvent(input$random, {
+  movies <- filtered_data()$title  
+  
+  if (length(movies) > 0) {  
+    movie <- sample(movies, 1)  
+    output$randomMovie <- renderText(paste("🎥 Random Pick: ", movie))
+  } else {
+    output$randomMovie <- renderText("⚠️ No movies found! Try changing your filters.")
+  }
+})
+}
+
+shinyApp(ui, server)
+```
+

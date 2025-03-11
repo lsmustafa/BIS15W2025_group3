@@ -39,7 +39,6 @@ imdb_top_1000 %>%
 Laiba:
 
 ```{r}
-<<<<<<< Updated upstream
 colnames(netflix)
 ```
 ```{r}
@@ -47,13 +46,11 @@ summary(netflix)
 ```
 ```{r}
 glimpse(netflix)
-=======
+
 netflix %>% 
   group_by(country) %>% 
-  
   ggplot(aes(x=country))+
   geom_bar()
->>>>>>> Stashed changes
 ```
 
 
@@ -61,9 +58,9 @@ netflix %>%
 netflix_clean <- netflix %>% 
   separate(date_added, into= c("day_added","year_added"), sep = ", ") %>% 
   mutate(
-    num = as.numeric(str_extract(duration, "\\d+")),  # Extract numeric values
+    num = as.numeric(str_extract(duration, "\\d+")),  
     duration_mins = case_when(
-      str_detect(duration, "Season") ~ num * 450,  # Convert seasons to estimated minutes
+      str_detect(duration, "Season") ~ num * 450,  
       str_detect(duration, "min") ~ num)) %>%
   select(-num, -show_id)
   
@@ -104,7 +101,7 @@ netflix %>%
 netflix %>% 
   filter(country!="United States") %>% 
   filter(rating %in% c("UR","TV-Y7-FV", "TV-Y", "TV-PG", "TV-MA", "TV-G", "TV-14", "R", "PG-13", "PG", "NR", "NC-17", "G" )) %>% 
-  ggplot(aes(x=rating))+
+  ggplot(aes(x=rating, fill=rating))+
   geom_bar()+
   coord_flip()+
   labs(title= "Number of Movies by Rating in ")
@@ -120,51 +117,50 @@ netflix_clean %>%
   ggplot(aes(x = year_added, y = count)) +
   geom_line(color = "pink", size = 0.5) +
   geom_point(color = "red", size = 2) +
-  labs(title = "Netflix Content Growth Over Time", x = "Year", y = "Number of Titles") +
+  labs(title = "Netflix Content Growth Over Time", x = "Year", y = "Number of Titles Released") +
   theme_minimal()
 ```
 
 ```{r}
-#LONGEST and shortest on netflix
+#LONGEST and shortest on Netflix
+netflix_clean %>% 
+  arrange(-)
 ```
 
-```{r}
-# doesnt work 
-netflix %>%
-  filter(str_detect(title, "2 |3 |4 |Reboot |Remake |Return |Reunion |Part "))
-  
-```
+
 
 ```{r}
  netflix %>%
   select(title, rating, release_year) %>% 
+  filter(rating %in% c("UR","TV-Y7-FV", "TV-Y", "TV-PG", "TV-MA", "TV-G", "TV-14", "R", "PG-13", "PG", "NR", "NC-17", "G" )) %>% 
   mutate(decade = floor(release_year / 10) * 10) %>% 
   count(decade, rating, sort = TRUE) %>% 
-  ggplot(aes(x=decade, y=n, fill=rating))+
+  ggplot(aes(x=as.factor(decade), y=n, fill=rating))+
     geom_col()+
-  scale_y_log10()
+  scale_y_log10()+
+  labs(title="Ratings and Releases by Decade",
+       y="Count (log 10)",
+       x="Decade",
+       fill="Rating")
 
 ```
-
+Show a Distribution of Moview Durations.
 ```{r}
 # density plot of durations
 netflix_clean %>% 
+  filter(type=="Movie") %>% 
 ggplot(aes(x = duration_mins)) +
   geom_density(fill = "lightblue", alpha = 0.6) +
   labs(title = "Distribution of Movie Durations", x = "Duration (mins)", y = "Density") +
   theme_minimal()
 ```
 
-```{r}
-library(lubridate)
-```
-
+Display the Number of Netflix Releases by Year and Month.
 ```{r}
 # heatmap of releases, fix axis titles on x
 netflix_clean %>%
   separate(day_added, into= c("month_added","date_added"), sep = " ") %>% 
   count(year_added, month_added) %>% 
-# Plot heatmap
 ggplot(aes(x = month_added, y = year_added, fill = n)) +
   geom_tile() +
   labs(title = "Netflix Releases by Year and Month", x = "Month", y = "Year", fill = "Number of Titles") +
@@ -173,6 +169,17 @@ ggplot(aes(x = month_added, y = year_added, fill = n)) +
   theme(axis.text.x=element_text(angle=60, hjust=1))
 ```
 
+Show the Range of Movie Durations by Decade.
+
+```{r}
+netflix_clean %>%
+  filter(type=="Movie") %>% 
+  mutate(decade = floor(release_year / 10) * 10) %>%
+  ggplot(aes(x = factor(decade), y = duration_mins, fill = factor(decade))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Range of Movie Duration by Decade", x = "Decade", y = "Duration (minutes)") +
+  theme_minimal()
+```
 
 
 
