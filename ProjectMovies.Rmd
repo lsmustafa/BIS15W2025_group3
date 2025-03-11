@@ -29,11 +29,9 @@ imdb_top_1000 <- read_csv("data/imdb_top_1000.csv") %>% clean_names()
 ```
 
 ```{r}
-imdb_top_1000 %>% 
-  group_by(director) %>% 
-  summarize(avg_rating=mean(imdb_rating)) %>% 
-  arrange(-avg_rating)
+disney <- read_csv("data/movie_infoboxes_clean_final.csv") %>%  clean_names()
 ```
+
 
 
 Laiba:
@@ -274,6 +272,41 @@ movie_trends <- love_and_war %>%
   group_by(released_year, movie_type) %>%
   summarise(movie_count = n(), .groups = 'drop')
 ```
+
+
+
+
+```{r}
+glimpse(disney)
+```
+
+
+
+```{r}
+disney <- disney %>% 
+  select(-c(26:60)) #remove unnecessary columns
+```
+
+```{r}
+disney <- disney %>%
+  mutate(release_year = coalesce(release_dates, release_date)) %>%
+  select(-release_dates, -release_date) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
