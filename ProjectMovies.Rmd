@@ -315,23 +315,43 @@ disney_ratings_over_time <- disney %>%
 
 
 ```{r}
-disney_ratings_over_time2 <- disney_ratings_over_time %>% 
-    mutate(year = as.numeric(year),
+disney_avg_ratings <- disney_ratings_over_time %>%
+  mutate(year = as.numeric(year),
     imdb_rating = as.numeric(imdb_rating)) %>% 
-  group_by(year) %>%                     
-  summarise(avg_rating = mean(imdb_rating, na.rm = TRUE)) %>%  
-   filter(!is.na(year)) %>% 
-  pivot_wider(names_from = year, values_from = avg_rating)
+  filter(!is.na(year)) %>%  
+  group_by(year) %>%       
+  summarise(avg_rating = round(mean(imdb_rating, na.rm = TRUE), 2))
 ```
 
 
 ```{r}
-disney_ratings_over_time2 %>% 
-  ggplot(aes(x=year, y=n, group=species_id, color=species_id)) +
-  geom_line() + 
-  geom_point(shape=8) +
-  theme(axis.text.x=element_text(angle = 60, hjust = 1))
+ggplot(disney_avg_ratings, aes(x = year, y = avg_rating)) +
+  geom_line(color="lightsteelblue1") +  
+  geom_point(color="lightsteelblue1") + 
+  scale_x_continuous(breaks = seq(min(disney_avg_ratings$year), max(disney_avg_ratings$year), by = 2)) +
+  labs(title = "Average Disney Ratings Over the Years",
+       x = "Year",
+       y = "Average Rating") +
+theme_minimal() +
+theme(
+    axis.text.x = element_text(angle = 75, hjust = 1, color="royalblue"),  
+    axis.title.x = element_text(size = 12, color = "royalblue", face = "bold"), 
+    axis.title.y = element_text(size = 12, color = "royalblue", face = "bold"), 
+    axis.text.y = element_text(color="royalblue"), 
+    plot.title = element_text(face = "bold", size = 16, color = "lightblue"),  
+    panel.grid.major = element_line(color = "aliceblue"),  
+    panel.grid.minor = element_blank()  
+  )
+```
 
+Worst Movies Recently:
+
+2023:
+```{r}
+disney %>% 
+  select(title, imdb_rating) %>% 
+  mutate(imdb_rating= as.numeric(imdb_rating)) %>% 
+  arrange(-imdb_rating)
 ```
 
 
@@ -339,13 +359,9 @@ disney_ratings_over_time2 %>%
 
 
 
-
-
-
-
-
-
-
+```{r}
+colors()
+```
 
 
 
