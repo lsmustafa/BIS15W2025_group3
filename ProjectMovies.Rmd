@@ -338,29 +338,50 @@ theme(
     axis.title.x = element_text(size = 12, color = "royalblue", face = "bold"), 
     axis.title.y = element_text(size = 12, color = "royalblue", face = "bold"), 
     axis.text.y = element_text(color="royalblue"), 
-    plot.title = element_text(face = "bold", size = 16, color = "lightblue"),  
+    plot.title = element_text(face = "bold", size = 16, color = "royalblue"),  
     panel.grid.major = element_line(color = "aliceblue"),  
     panel.grid.minor = element_blank()  
   )
+
+#big dip at 2023
 ```
 
-Worst Movies Recently:
+Worst Movies:
 
-2023:
+Recently: 2023
+```{r}
+disney_avg_ratings %>% 
+  filter(year == "2023")
+
+#saw a big dip in 2023 with a rating of 5.97 
+```
+Worst Movie of 2023:
 ```{r}
 disney %>% 
+  filter(str_detect(release_year, "2023")) %>% 
   select(title, imdb_rating) %>% 
+  arrange(imdb_rating) %>% 
+  head(n, n=1)
+
+#Peter Pan & Wendy with a rating of 4.4
+```
+
+Overall:
+```{r}
+disney %>% 
+  select(title, imdb_rating, release_year) %>% 
   mutate(imdb_rating= as.numeric(imdb_rating)) %>% 
-  arrange(-imdb_rating)
+  arrange(imdb_rating)
+
+#2009, imdb_rating of 1.6, Jonas Brothers:The 3D Concert Experience
+#2008, rating of 2.7, Hannah Montana and Miley Cyrus:Best of Both Worlds Concert
+#2003, rating of 3.4, George of the Jungle 2
 ```
 
 
-
-
-
-
+Is there a correlation between budget and rating? 
 ```{r}
-colors()
+
 ```
 
 
