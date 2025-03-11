@@ -47,10 +47,7 @@ summary(netflix)
 ```{r}
 glimpse(netflix)
 
-netflix %>% 
-  group_by(country) %>% 
-  ggplot(aes(x=country))+
-  geom_bar()
+
 ```
 
 
@@ -67,7 +64,7 @@ netflix_clean <- netflix %>%
   
 ```
 
-
+Find the countries with the most International Movies.
 ```{r}
 netflix %>% 
   filter(str_detect(listed_in,"International Movies")) %>% 
@@ -83,6 +80,16 @@ netflix %>%
        y="Movies")
 
 ```
+
+In the country with the most international movies, what year were the first movies from this country added?
+```{r}
+netflix_clean %>% 
+  filter(country=="India") %>% 
+  arrange(year_added) %>% 
+  select(title, year_added)
+```
+
+
 
 ```{r}
 netflix %>% 
