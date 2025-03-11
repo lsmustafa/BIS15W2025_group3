@@ -21,7 +21,7 @@ require(janitor)
 ```
 
 ```{r}
-netflix_clean %>% read_csv("data/netflix_clean.csv")
+netflix_clean <-  read_csv("data/netflix_clean.csv")
 ```
 
 
@@ -36,15 +36,15 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("genre", "Choose a Genre:", 
-                  choices = unique(unlist(strsplit(netflix$listed_in, ", "))),
+                  choices = unique(unlist(strsplit(netflix_clean$listed_in, ", "))),
                   selected = "Documentaries"),
       
       selectInput("rating", "Choose a Rating:", 
-                  choices = unique(netflix$rating),
+                  choices = unique(netflix_clean$rating),
                   selected = "PG-13"),
       
       selectInput("country", "Choose a Country:", 
-                  choices = unique(unlist(strsplit(netflix$country, ", "))),
+                  choices = unique(unlist(strsplit(netflix_clean$country, ", "))),
                   selected = "United States"),
       
       radioButtons("length", "Select Movie Length:", 
