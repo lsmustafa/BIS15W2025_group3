@@ -85,10 +85,6 @@ netflix %>%
 ```
 
 ```{r}
-colnames(netflix)
-```
-
-```{r}
 netflix %>% 
   filter(country=="United States") %>% 
   filter(rating %in% c("UR","TV-Y7-FV", "TV-Y", "TV-PG", "TV-MA", "TV-G", "TV-14", "R", "PG-13", "PG", "NR", "NC-17", "G" )) %>% 
@@ -104,7 +100,9 @@ netflix %>%
   ggplot(aes(x=rating, fill=rating))+
   geom_bar()+
   coord_flip()+
-  labs(title= "Number of Movies by Rating in ")
+  labs(title= "Number of Movies by Rating",
+       x="Rating",
+       y="Count")
 ```
 
 
@@ -119,12 +117,6 @@ netflix_clean %>%
   geom_point(color = "red", size = 2) +
   labs(title = "Netflix Content Growth Over Time", x = "Year", y = "Number of Titles Released") +
   theme_minimal()
-```
-
-```{r}
-#LONGEST and shortest on Netflix
-netflix_clean %>% 
-  arrange(-)
 ```
 
 
@@ -179,6 +171,11 @@ netflix_clean %>%
   geom_boxplot(alpha = 0.7) +
   labs(title = "Range of Movie Duration by Decade", x = "Decade", y = "Duration (minutes)") +
   theme_minimal()
+```
+
+```{r}
+netflix_clean %>% 
+  # actor with most netflix appearances
 ```
 
 
@@ -282,6 +279,9 @@ movie_trends <- love_and_war %>%
 
 
 
+```{r}
+write.csv(netflix_clean, "data/netflix_clean.csv", row.names=FALSE)
+```
 
 
 

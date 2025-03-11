@@ -27,41 +27,6 @@ netflix_clean %>% read_csv("data/netflix_clean.csv")
 
 ```{r}
 library(shiny)
-
-ui <- fluidPage(titlePanel("Netflix App"),
-                selectInput("x",
-                            "Select Fill Variable",
-                            choices=unique(netflix$listed_in),
-                            selected="Documentaries"),
-                selectInput("rating",
-                            "Select Rating",
-              choices = unique(netflix$rating),
-              selected = unique(netflix$rating)[1]),
-              
-                 plotOutput("plot", width = "600px", height = "600px"))
-  
-
-
-server <- function(input, output, session) {
-  output$plot <- renderPlot({
-            netflix %>% 
-             filter(listed_in==input$x, rating == input$rating) %>% 
-             ggplot(aes(x=reorder(title, duration), y=duration))+
-             geom_col(fill="steelblue", color="black", alpha=0.8)+
-            coord_flip()
-  })
-  
-}
-
-shinyApp(ui, server)
-```
-
-```{r}
-
-```
-
-```{r}
-library(shiny)
 library(shinythemes)
 
 ui <- fluidPage(
