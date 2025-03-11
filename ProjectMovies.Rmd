@@ -78,13 +78,95 @@ netflix %>%
 
 
 Hareem:
-```{r}
 
+cleaning:
+```{r}
+imdb_top_1000 <- imdb_top_1000 %>% 
+  select(-c(poster_link, certificate,)) #removing unnecessary columns
+```
+
+```{r}
+imdb_top_1000 <- imdb_top_1000 %>% 
+  unite("stars", star1, star2, star3, star4, sep = ",") #joining columns
+```
+
+
+Actors in the most top 1000 movies:
+```{r}
+top_7 <- imdb_top_1000 %>% 
+  separate_rows(stars, sep = ", ") %>%  
+  count(stars) %>%         
+  slice_max(n, n = 7) %>% 
+  arrange(-n, stars)
+
+top_7
+```
+
+
+imdb rating average for each of the top 7:
+```{r}
+imdb_top_1000 %>% 
+  separate_rows(stars, sep = ", ") %>%
+  filter(stars %in% top_7$stars) %>%  # Filter to include only top 7 actors
+  group_by(stars) %>%                      # Group by actor
+  summarise(average_rating = mean(imdb_rating, na.rm = T)) %>% 
+  arrange(-average_rating)
 ```
 
 
 
+Separating based off of which movies contain the word "love" and "war" in their overviews. 
 
+From the imdb top 1000 movies, are movies about love or war higher rated and which earns more? Over time, which is more popular; war or love? 
+```{r}
+love_and_war <- imdb_top_1000 %>% 
+  filter(str_detect(overview, " love | war ")) %>% 
+  select(overview, series_title, released_year, runtime, stars, imdb_rating, gross) %>% 
+  mutate(movie_type = case_when(
+    str_detect(overview, fixed("love")) ~ "Love",
+    str_detect(overview, fixed("war")) ~ "War"
+  ))
+```
+
+```{r}
+love <- love_and_war %>% 
+  filter(str_detect(overview, " love ")) %>% 
+```
+
+```{r}
+war <- love_and_war %>% 
+  filter(str_detect(overview, " war "))
+```
+
+
+Which has the higher rating?
+```{r}
+love_and_war %>% 
+  filter(str_detect(overview, " love ")) %>% 
+  summarize(love_ratings = mean(imdb_rating)) 
+```
+```{r}
+love_and_war %>% 
+  filter(str_detect(overview, " war ")) %>% 
+  summarize(war_ratings = mean(imdb_rating)) 
+```
+
+Which earns more money?
+```{r}
+love_and_war %>% 
+  filter(str_detect(overview, " love ")) %>% 
+  summarize(love_money = mean(gross, na.rm=T))
+```
+```{r}
+love_and_war %>% 
+  filter(str_detect(overview, " war ")) %>% 
+  summarize(war_money = mean(gross, na.rm=T))
+```
+```{r}
+movie_trends <- love_and_war %>%
+  group_by(released_year, movie_type) %>%
+  summarise(movie_count = n(), .groups = 'drop')
+```
 
 
 
