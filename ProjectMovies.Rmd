@@ -191,9 +191,6 @@ netflix_clean %>%
 
 
 Hareem:
-```{r}
-
-```
 
 cleaning:
 ```{r}
@@ -382,47 +379,35 @@ disney %>%
 
 
 
-Is there a correlation between budget and rating? 
+Is there a correlation between budget and rating? Looking at movies from 2020-2023
 
 ```{r}
 disney_budget <- disney %>% 
-  filter(!is.na(budget)) %>% 
-  select(title, budget, imdb_rating, release_year) 
+  select(title, budget, imdb_rating, release_year) %>% 
+  na.omit() %>% 
+  separate(release_year, into=c("month_day", "year"), sep = ", ") %>% 
+  select(-month_day) %>% 
+  filter(year=="2020" | year=="2021" | year=="2022" | year=="2023")
 ```
 
 ```{r}
-rows_to_remove <- c(1:17, 19, 20, 28, 32, 44, 45, 46, 47, 54, 59, 62, 64, 65, 98, 99, 
-                    105, 106, 115, 128:132, 144, 145, 151, 161, 175, 178, 
-                    217, 218, 224:229, 246, 248:250, 264, 279, 287, 288, 
-                    302, 303, 304)
+rows_to_remove <- c(2, 9, 10, 11, 13, 16, 20, 23, 25)
+```
+```{r}
+disney_budget <- disney_budget[-rows_to_remove, ]
 ```
 
 ```{r}
-disney_budget_clean <- disney_budget[-rows_to_remove, ] 
-```
-
-```{r}
-rows_to_remove2 <- c(19, 20, 22, 47, 60, 132, 167, 171, 247)
-```
-
-```{r}
-disney_budget_clean <- disney_budget[-rows_to_remove2, ] 
+disney_budget <- disney_budget %>% 
+  mutate(budget = as.numeric(gsub("[\\$, million]", "", budget)))
 ```
 
 
 ```{r}
-disney_budget_clean <- disney_budget_clean %>%
-  mutate(budget = as.numeric(gsub("[\\$, million]", " ", budget)
-  ))
-
-#Removed "$" and "million", then converted to numeric
-```
-
-```{r}
-ggplot(disney_budget_clean, aes(x = budget, y = imdb_rating)) +
+ggplot(disney_budget, aes(x = budget, y = imdb_rating)) +
   geom_point(color = "pink", size = 2) +  
   labs(
-    title = "Correlation Between Budget and IMDb Rating",
+    title = "Correlation Between Budget and IMDb Rating (2020-2023)",
     x = "Budget (in millions)",
     y = "IMDb Rating"
   ) +
@@ -432,9 +417,22 @@ ggplot(disney_budget_clean, aes(x = budget, y = imdb_rating)) +
     axis.title.x = element_text(size = 14, color = "pink"),
     axis.title.y = element_text(size = 14, color = "pink")
   )
+
+#don't really see a correlation
 ```
 
-
+What was the rating of the lowest budget film made in the years 2020-2023?
+```{r}
+disney_budget %>% 
+  arrange(budget) %>% 
+  head(n, n=1)
+```
+```{r}
+disney_budget %>% 
+  arrange(desc(imdb_rating)) %>% 
+  head(n, n=1)
+```
+#Between 2020-2023, the movie with the highest rating has the lowest budget of just 12.5 million. The movie with the lowest rating (4.3) was Artemis Fowl with a budget of 125 million. 
 
 
 
