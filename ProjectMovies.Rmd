@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(janitor)
+library(dplyr)
+library(ggplot2)
 ```
 
 
@@ -298,7 +300,6 @@ disney <- disney %>%
   select(-release_dates, -release_date)  #combine both release date columns
 ```
 
-
 ```{r}
 disney <- disney %>% 
   rename(imdb_rating="im_db_rating")
@@ -379,10 +380,68 @@ disney %>%
 ```
 
 
-Is there a correlation between budget and rating? 
-```{r}
 
+
+Is there a correlation between budget and rating? 
+
+```{r}
+disney_budget <- disney %>% 
+  filter(!is.na(budget)) %>% 
+  select(title, budget, imdb_rating, release_year) 
 ```
+
+```{r}
+rows_to_remove <- c(1:17, 19, 20, 28, 32, 44, 45, 46, 47, 54, 59, 62, 64, 65, 98, 99, 
+                    105, 106, 115, 128:132, 144, 145, 151, 161, 175, 178, 
+                    217, 218, 224:229, 246, 248:250, 264, 279, 287, 288, 
+                    302, 303, 304)
+```
+
+```{r}
+disney_budget_clean <- disney_budget[-rows_to_remove, ] 
+```
+
+```{r}
+rows_to_remove2 <- c(19, 20, 22, 47, 60, 132, 167, 171, 247)
+```
+
+```{r}
+disney_budget_clean <- disney_budget[-rows_to_remove2, ] 
+```
+
+
+```{r}
+disney_budget_clean <- disney_budget_clean %>%
+  mutate(budget = as.numeric(gsub("[\\$, million]", " ", budget)
+  ))
+
+#Removed "$" and "million", then converted to numeric
+```
+
+```{r}
+ggplot(disney_budget_clean, aes(x = budget, y = imdb_rating)) +
+  geom_point(color = "pink", size = 2) +  
+  labs(
+    title = "Correlation Between Budget and IMDb Rating",
+    x = "Budget (in millions)",
+    y = "IMDb Rating"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, color = "pink"),
+    axis.title.x = element_text(size = 14, color = "pink"),
+    axis.title.y = element_text(size = 14, color = "pink")
+  )
+```
+
+
+
+
+
+
+
+
+
 
 
 
