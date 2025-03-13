@@ -225,59 +225,36 @@ imdb_top_1000 %>%
   arrange(-average_rating)
 ```
 
-Separating based off of which movies contain the word "love" and "war" in their overviews. 
 
-From the imdb top 1000 movies, are movies about love or war higher rated and which earns more? Over time, which is more popular; war or love? 
+Top movie of each decade from imdb top 1000 (80s, 90s, 2000s, 2010s):
 ```{r}
-love_and_war <- imdb_top_1000 %>% 
-  filter(str_detect(overview, " love | war ")) %>% 
-  select(overview, series_title, released_year, runtime, stars, imdb_rating, gross) %>% 
-  mutate(movie_type = case_when(
-    str_detect(overview, fixed("love")) ~ "Love",
-    str_detect(overview, fixed("war")) ~ "War"
-  ))
+top_decades <- imdb_top_1000 %>% 
+  select(series_title, released_year, imdb_rating, genre)
 ```
 
+80s:
 ```{r}
-love <- love_and_war %>% 
-  filter(str_detect(overview, " love "))
+top_decades %>% 
+  filter(released_year %in% 1980:1989) %>% 
+  arrange(desc(imdb_rating)) %>% 
+  head(n=1)
+
+#Star Wars: Episode V - The Empire Strikes Back was the highest rated of the 80s
 ```
 
+90s:
+
 ```{r}
-war <- love_and_war %>% 
-  filter(str_detect(overview, " war "))
+top_decades %>% 
+  filter(released_year %in% 1990:1999) %>% 
+  arrange(desc(imdb_rating)) %>% 
+  head(n=1)
+
+#The Shawshank Redemption was the highest rated of the 90s
 ```
 
 
-Which has the higher rating?
-```{r}
-love_and_war %>% 
-  filter(str_detect(overview, " love ")) %>% 
-  summarize(love_ratings = mean(imdb_rating)) 
-```
 
-```{r}
-love_and_war %>% 
-  filter(str_detect(overview, " war ")) %>% 
-  summarize(war_ratings = mean(imdb_rating)) 
-```
-
-Which earns more money?
-```{r}
-love_and_war %>% 
-  filter(str_detect(overview, " love ")) %>% 
-  summarize(love_money = mean(gross, na.rm=T))
-```
-```{r}
-love_and_war %>% 
-  filter(str_detect(overview, " war ")) %>% 
-  summarize(war_money = mean(gross, na.rm=T))
-```
-```{r}
-movie_trends <- love_and_war %>%
-  group_by(released_year, movie_type) %>%
-  summarise(movie_count = n(), .groups = 'drop')
-```
 
 
 
