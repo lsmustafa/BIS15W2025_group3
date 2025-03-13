@@ -18,10 +18,6 @@ library(ggplot2)
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ```{r}
 netflix <- read_csv("data/netflix_titles.csv")
 ```
@@ -503,12 +499,5 @@ disney_budget %>%
 
 #Between 2020-2023, the movie with the highest rating has the lowest budget of just 12.5 million. The movie with the lowest rating (4.3) was Artemis Fowl with a budget of 125 million. 
 ```
-
-
-
-
-
-
-
 
 
