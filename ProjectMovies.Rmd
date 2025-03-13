@@ -240,7 +240,7 @@ love_and_war <- imdb_top_1000 %>%
 
 ```{r}
 love <- love_and_war %>% 
-  filter(str_detect(overview, " love ")) %>% 
+  filter(str_detect(overview, " love "))
 ```
 
 ```{r}
@@ -326,7 +326,7 @@ disney_avg_ratings <- disney_ratings_over_time %>%
 ggplot(disney_avg_ratings, aes(x = year, y = avg_rating)) +
   geom_line(color="lightsteelblue1") +  
   geom_point(color="lightsteelblue1") + 
-  scale_x_continuous(breaks = seq(min(disney_avg_ratings$year), max(disney_avg_ratings$year), by = 2)) +
+  scale_x_continuous(breaks = seq(min(disney_avg_ratings$year), max(disney_avg_ratings$year), by = 5)) +
   labs(title = "Average Disney Ratings Over the Years",
        x = "Year",
        y = "Average Rating") +
@@ -341,7 +341,7 @@ theme(
     panel.grid.minor = element_blank()  
   )
 
-#big dip at 2023
+#always gone up and down, but recently the big dip was in 2023
 ```
 
 Worst Movies:
@@ -378,7 +378,6 @@ disney %>%
 
 
 
-
 Is there a correlation between budget and rating? Looking at movies from 2020-2023
 
 ```{r}
@@ -405,17 +404,18 @@ disney_budget <- disney_budget %>%
 
 ```{r}
 ggplot(disney_budget, aes(x = budget, y = imdb_rating)) +
-  geom_point(color = "pink", size = 2) +  
+  geom_point(color = "royalblue3", size = 3, alpha = 0.8, shape = 16) +  
   labs(
     title = "Correlation Between Budget and IMDb Rating (2020-2023)",
     x = "Budget (in millions)",
     y = "IMDb Rating"
   ) +
-  theme_minimal() +
+  theme_light() +
   theme(
-    plot.title = element_text(face = "bold", size = 16, color = "pink"),
-    axis.title.x = element_text(size = 14, color = "pink"),
-    axis.title.y = element_text(size = 14, color = "pink")
+    plot.title = element_text(face = "bold", size = 16, color = "skyblue3"),
+    axis.title.x = element_text(size = 14, color = "skyblue3"),
+    axis.title.y = element_text(size = 14, color = "skyblue3"), 
+    panel.grid.major = element_line(color = "lightgray", linetype = "dotted")
   )
 
 #don't really see a correlation
@@ -433,7 +433,6 @@ disney_budget %>%
   head(n, n=1)
 ```
 #Between 2020-2023, the movie with the highest rating has the lowest budget of just 12.5 million. The movie with the lowest rating (4.3) was Artemis Fowl with a budget of 125 million. 
-
 
 
 
