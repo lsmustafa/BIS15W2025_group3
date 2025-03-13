@@ -1,0 +1,50 @@
+/* 🌸 Super Light Background */
+body {
+  background-color: #feeaea; 
+}
+
+/* 🔴 Dark Red Sidebar */
+.sidebar {
+  background-color: #9b0404;  
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+/* ⚫ Black Netflix-style Navigation Bar */
+.navbar-default {
+  background-color: #141414 !important;
+  border-color: #141414;
+}
+
+.navbar-default .navbar-brand, 
+.navbar-default .navbar-nav > li > a {
+  color: white !important;
+}
+
+/* 🎬 Netflix-like Titles & Headings */
+h1, h2, h3 {
+  color: black; /* Ensures visibility on light background */
+}
+
+/* 🔴 Style for Buttons */
+.btn-primary {
+  background-color: #e50914 !important;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: #333 !important;
+  color: white;
+}
+
+/* 🖱️ Pointer Cursor for Clickable Movie Titles */
+.movie_link {
+  color: #e50914;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.movie_link:hover {
+  text-decoration: underline;
+}

@@ -27,86 +27,187 @@ netflix_clean <-  read_csv("data/netflix_clean.csv")
 
 ```{r}
 library(shiny)
+library(dplyr)
+library(ggplot2)
+library(DT)
 library(shinythemes)
+library(plotly)
+library(stringr)
+
+
+netflix <- read.csv("data/netflix_titles.csv", stringsAsFactors = FALSE)
+
+
+netflix <- netflix %>%
+  mutate(
+    num = as.numeric(str_extract(duration, "\\d+")),
+    duration_mins = case_when(
+      str_detect(duration, "Season") ~ num * 450,
+      str_detect(duration, "min") ~ num,
+      TRUE ~ NA_real_
+    ),
+    decade = floor(release_year / 10) * 10  # Convert release year to decade
+  ) %>%
+  filter(!is.na(duration_mins))
+
 
 ui <- fluidPage(
-  theme = shinytheme("superhero"),
-  titlePanel("Find Your Next Movie 🍿"),
+  theme = shinytheme("flatly"),
+  includeCSS("www/styles.css"), 
+  
+  titlePanel(div("🎬 Netflix Explorer: Discover Movies & Insights", style = "color: black; text-align: center;font-weight: bold;")),
   
   sidebarLayout(
     sidebarPanel(
-      selectInput("genre", "Choose a Genre:", 
-                  choices = unique(unlist(strsplit(netflix_clean$listed_in, ", "))),
-                  selected = "Documentaries"),
-      
-      selectInput("rating", "Choose a Rating:", 
-                  choices = unique(netflix_clean$rating),
-                  selected = "PG-13"),
-      
-      selectInput("country", "Choose a Country:", 
-                  choices = unique(unlist(strsplit(netflix_clean$country, ", "))),
-                  selected = "United States"),
-      
-      radioButtons("length", "Select Movie Length:", 
-                   choices = c("Short (< 90 min)", "Medium (90-120 min)", "Long (> 120 min)"),
-                   selected = "Medium (90-120 min)"),
-      
-      actionButton("random", "Pick a Random Movie 🎲", class = "btn-primary"),
-      
-      br(), br(),
-      tableOutput("recommendTable")
+      div(class = "sidebar",  
+          selectInput("genre", "Choose a Genre:", choices = c("Any", unique(unlist(strsplit(netflix$listed_in, ", "))))),
+          selectInput("rating", "Choose a Rating:", choices = c("Any", unique(netflix$rating))),
+          sliderInput("year_range", "Select Year Range:", min = 1920, max = 2024, value = c(2000, 2024), step = 1),
+          radioButtons("length", "Select Movie Length:", choices = c("Any", "Short (< 90 min)", "Medium (90-120 min)", "Long (> 120 min)"), selected = "Any"),
+          actionButton("random", "🎰 Spin for a Random Movie", class = "btn-primary"),
+          br(), br(),
+          uiOutput("randomMovie")
+      )
     ),
     
     mainPanel(
-      plotOutput("lengthPlot", width = "600px", height = "400px"),
-      textOutput("randomMovie")
+      tabsetPanel(
+        id = "tabs",
+        tabPanel("📊 Netflix Trends", 
+                 plotlyOutput("trendPlot"), 
+                 plotlyOutput("boxplot_duration"),
+                 plotlyOutput("genrePlot")),  # Added new trend plot
+        tabPanel("🎥 Movie Recommendations", 
+                 DTOutput("recommendTable")),
+        tabPanel("🎬 Movie Details",
+                 uiOutput("movieDetails"),
+                 actionButton("back", "⬅ Go Back to Movie List", class = "btn-secondary"))
+      )
     )
   )
 )
 
+
 server <- function(input, output, session) {
   
+
   filtered_data <- reactive({
-    netflix_clean %>%
-      separate_rows(listed_in, sep = ", ") %>%  # Handle multiple genres
-      filter(listed_in == input$genre,
-             rating == input$rating,
-             str_detect(country, input$country)) %>%
+    df <- netflix %>%
       filter(
+        (input$genre == "Any" | str_detect(listed_in, input$genre)),  
+        (input$rating == "Any" | rating == input$rating),  
+        release_year >= input$year_range[1] & release_year <= input$year_range[2],
         case_when(
+          input$length == "Any" ~ TRUE,
           input$length == "Short (< 90 min)" ~ duration_mins < 90,
           input$length == "Medium (90-120 min)" ~ duration_mins >= 90 & duration_mins <= 120,
           input$length == "Long (> 120 min)" ~ duration_mins > 120
         )
       )
+    
+    print(nrow(df)) 
+    df 
   })
   
-  output$recommendTable <- renderTable({
-    filtered_data() %>%
-      select(title, type, duration_mins, rating, country) %>%
-      head(10)  
+ 
+  output$recommendTable <- renderDT({
+    datatable(
+      filtered_data() %>%
+        select(title, type, duration_mins, rating),  # Show only required columns
+      options = list(pageLength = 5, autoWidth = TRUE),
+      rownames = FALSE,
+      selection = "single"  
+    )
   })
   
-  output$lengthPlot <- renderPlot({
-    filtered_data() %>%
-      ggplot(aes(x = duration_mins)) +
-      geom_histogram(binwidth = 15, fill = "red3", color = "black", alpha = 0.4) +
-      labs(title = "Distribution of Movie Durations", x = "Duration (minutes)", y = "Count") +
+  
+  observeEvent(input$random, {
+    df <- filtered_data()  
+    num_movies <- nrow(df)  
+
+    if (num_movies > 0) {
+      movie <- sample(df$title, 1) 
+      print(paste("Selected Movie:", movie))  
+      
+      output$randomMovie <- renderUI({
+        HTML(paste0("<h3 style='color:#ff4500; text-align:center;'>🎬 ", movie, " 🎬</h3>"))
+      })
+    } else {
+      output$randomMovie <- renderUI({
+        HTML("<h3 style='color:red; text-align:center;'>⚠️ No movies found! Try changing your filters.</h3>")
+      })
+    }
+  })
+  
+ 
+  observeEvent(input$recommendTable_rows_selected, {
+    selected_row <- input$recommendTable_rows_selected
+    if (length(selected_row) > 0) {
+      selected_movie <- filtered_data()[selected_row, ]
+      
+      updateTabsetPanel(session, "tabs", selected = "🎬 Movie Details")
+      
+      output$movieDetails <- renderUI({
+        tagList(
+          h2(selected_movie$title),
+          p(strong("Type: "), selected_movie$type),
+          p(strong("Rating: "), selected_movie$rating),
+          p(strong("Release Year: "), selected_movie$release_year),
+          p(strong("Country: "), selected_movie$country),
+          p(strong("Duration: "), paste(selected_movie$duration_mins, "minutes")),
+          p(strong("Genres: "), tags$ul(lapply(strsplit(selected_movie$listed_in, ", ")[[1]], tags$li))),  
+          p(strong("Description: "), selected_movie$description)
+        )
+      })
+    }
+  })
+
+ 
+  observeEvent(input$back, {
+    updateTabsetPanel(session, "tabs", selected = "🎥 Movie Recommendations")
+  })
+
+
+  output$trendPlot <- renderPlotly({
+    plot <- netflix %>%
+      group_by(decade) %>%
+      summarise(count = n()) %>%
+      ggplot(aes(x = decade, y = count)) +
+      geom_line(color = "pink", size = 1) +
+      geom_point(color = "red", size = 2) +
+      labs(title = "Netflix Content Growth Over Time", x = "Decade", y = "Number of Titles") +
       theme_minimal()
+
+    ggplotly(plot)  
   })
   
- observeEvent(input$random, {
-  movies <- filtered_data()$title  
-  
-  if (length(movies) > 0) {  
-    movie <- sample(movies, 1)  
-    output$randomMovie <- renderText(paste("🎥 Random Pick: ", movie))
-  } else {
-    output$randomMovie <- renderText("⚠️ No movies found! Try changing your filters.")
-  }
-})
+ 
+  output$boxplot_duration <- renderPlotly({
+    plot <- ggplot(netflix, aes(x = rating, y = duration_mins, fill = rating)) +
+      geom_boxplot(alpha = 0.7) +
+      labs(title = "Movie Duration by Rating", x = "Rating", y = "Duration (minutes)") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle=60, hjust=1))
+
+    ggplotly(plot)  
+  })
+
+
+  output$genrePlot <- renderPlotly({
+    plot <- netflix %>%
+      separate_rows(listed_in, sep = ", ") %>%
+      count(listed_in, decade) %>%
+      ggplot(aes(x = decade, y = n, color = listed_in)) +
+      geom_line(size = 1) +
+      labs(title = "Genre Popularity Over Time", x = "Decade", y = "Number of Titles", color = "Genre") +
+      theme_minimal()
+
+    ggplotly(plot)
+  })
 }
 
 shinyApp(ui, server)
+
+
 ```
 
