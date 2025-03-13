@@ -192,7 +192,7 @@ netflix_clean %>%
 
 Hareem:
 
-cleaning:
+Cleaning imdb:
 ```{r}
 imdb_top_1000 <- imdb_top_1000 %>% 
   select(-c(poster_link, certificate,)) #removing unnecessary columns
@@ -243,7 +243,6 @@ top_decades %>%
 ```
 
 90s:
-
 ```{r}
 top_decades %>% 
   filter(released_year %in% 1990:1999) %>% 
@@ -252,6 +251,43 @@ top_decades %>%
 
 #The Shawshank Redemption was the highest rated of the 90s
 ```
+2000s:
+```{r}
+top_decades %>% 
+  filter(released_year %in% 2000:2009) %>% 
+  arrange(desc(imdb_rating)) %>% 
+  head(n=1)
+
+#The Dark Night was the highest rated of the 2000s
+```
+2010s:
+```{r}
+top_decades %>% 
+  filter(released_year %in% 2010:2019) %>% 
+  arrange(desc(imdb_rating)) %>% 
+  head(n=1)
+
+#Inception was the highest rated of the 2010s
+```
+
+
+Which year produced the most top 1000 movies?
+```{r}
+imdb_top_1000 %>% 
+  count(released_year) %>% 
+  arrange(desc(n))
+```
+
+
+Popularity of each genre throughout the decades:
+```{r}
+genres_decades <- imdb_top_1000 %>% 
+  filter(released_year %in% 1980:2019) %>% 
+  arrange(released_year) 
+```
+
+
+
 
 
 
@@ -321,15 +357,16 @@ theme(
 #always gone up and down, but recently the big dip was in 2023
 ```
 
+
 Worst Movies:
 
-Recently: 2023
 ```{r}
 disney_avg_ratings %>% 
   filter(year == "2023")
 
 #saw a big dip in 2023 with a rating of 5.97 
 ```
+
 Worst Movie of 2023:
 ```{r}
 disney %>% 
@@ -354,9 +391,7 @@ disney %>%
 ```
 
 
-
 Is there a correlation between budget and rating? Looking at movies from 2020-2023
-
 ```{r}
 disney_budget <- disney %>% 
   select(title, budget, imdb_rating, release_year) %>% 
@@ -408,8 +443,10 @@ disney_budget %>%
 disney_budget %>% 
   arrange(desc(imdb_rating)) %>% 
   head(n, n=1)
-```
+
 #Between 2020-2023, the movie with the highest rating has the lowest budget of just 12.5 million. The movie with the lowest rating (4.3) was Artemis Fowl with a budget of 125 million. 
+```
+
 
 
 
