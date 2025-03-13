@@ -286,12 +286,66 @@ genres_decades <- imdb_top_1000 %>%
   arrange(released_year) 
 ```
 
+```{r}
+pop_of_genres <- genres_decades %>%
+  mutate(decade = case_when(
+    released_year >= 1980 & released_year < 1990 ~ "1980s",
+    released_year >= 1990 & released_year < 2000 ~ "1990s",
+    released_year >= 2000 & released_year < 2010 ~ "2000s",
+    released_year >= 2010 & released_year < 2020 ~ "2010s"
+  )) %>% 
+  group_by(decade, genre) %>%
+  summarise(count = n(), .groups = 'drop')
+```
 
+```{r}
+pop_of_genres <- pop_of_genres %>% 
+  separate_rows(genre, sep = ", ") %>%
+  filter(!genre %in% c("History", "Music", "Sport")) %>% 
+  group_by(decade, genre) 
+```
 
+```{r}
+genre_colors <- c(
+  "Action" = "#ffdfba",
+  "Adventure" = "#ffecb3",
+  "Comedy" = "#f4c2c2",
+  "Drama" = "#c7f9cc",
+  "Fantasy" = "#ffb3e6",
+  "Sci-Fi" = "#caffbf",
+  "Thriller" = "#fdffb6",
+  "Crime" = "#f7b7a3",
+  "Family" = "#b3b3cc",
+  "Animation" = "#e0c3fc", 
+  "Biography" = "#b3e5fc", 
+  "Horror" = "#ffc3a0",
+  "Musical" = "#b28dff",
+  "Mystery" = "#a0c4ff",
+  "Romance" = "#9bf6ff",
+  "War" = "#ffd6a5",
+  "Western" ="#ffadad"
+)
+```
 
-
-
-
+```{r}
+ggplot(pop_of_genres, aes(x = decade, y = total_count, fill = genre)) +
+  geom_bar(stat = "identity", position = "stack", color = "white", size = 0.3) +
+  scale_fill_manual(values = genre_colors) + 
+  labs(title = "Genre Distribution by Decade",
+       x = "Decade",
+       y = "Number of Movies",
+       fill = "Genre") +
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 9, face = "bold"),
+    legend.text = element_text(size = 9),
+    panel.grid.major = element_line(color = "#f0f0f0"), 
+    panel.grid.minor = element_line(color = "#f0f0f0")
+  )
+```
 
 
 Cleaning disney:
@@ -359,7 +413,6 @@ theme(
 
 
 Worst Movies:
-
 ```{r}
 disney_avg_ratings %>% 
   filter(year == "2023")
