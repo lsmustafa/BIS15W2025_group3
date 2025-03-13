@@ -46,7 +46,7 @@ netflix <- netflix %>%
       str_detect(duration, "min") ~ num,
       TRUE ~ NA_real_
     ),
-    decade = floor(release_year / 10) * 10  # Convert release year to decade
+    decade = floor(release_year / 10) * 10  
   ) %>%
   filter(!is.na(duration_mins))
 
@@ -55,7 +55,7 @@ ui <- fluidPage(
   theme = shinytheme("flatly"),
   includeCSS("www/styles.css"), 
   
-  titlePanel(div("🎬 Netflix Explorer: Discover Movies & Insights", style = "color: black; text-align: center;font-weight: bold;")),
+  titlePanel(div("🎬 Netflix Explorer", style = "color: black; text-align: center;font-weight: bold;")),
   
   sidebarLayout(
     sidebarPanel(
@@ -94,8 +94,8 @@ server <- function(input, output, session) {
   filtered_data <- reactive({
     df <- netflix %>%
       filter(
-        (input$genre == "Any" | str_detect(listed_in, input$genre)),  
-        (input$rating == "Any" | rating == input$rating),  
+        (input$genre == "Any" | str_detect(listed_in, input$genre)), 
+        (input$rating == "Any" | rating == input$rating), 
         release_year >= input$year_range[1] & release_year <= input$year_range[2],
         case_when(
           input$length == "Any" ~ TRUE,
@@ -104,16 +104,17 @@ server <- function(input, output, session) {
           input$length == "Long (> 120 min)" ~ duration_mins > 120
         )
       )
-    
-    print(nrow(df)) 
+
+    print(df$listed_in) 
     df 
-  })
+})
+
   
  
   output$recommendTable <- renderDT({
     datatable(
       filtered_data() %>%
-        select(title, type, duration_mins, rating),  # Show only required columns
+        select(title, type, duration_mins, rating),  
       options = list(pageLength = 5, autoWidth = TRUE),
       rownames = FALSE,
       selection = "single"  
@@ -156,7 +157,9 @@ server <- function(input, output, session) {
           p(strong("Country: "), selected_movie$country),
           p(strong("Duration: "), paste(selected_movie$duration_mins, "minutes")),
           p(strong("Genres: "), tags$ul(lapply(strsplit(selected_movie$listed_in, ", ")[[1]], tags$li))),  
-          p(strong("Description: "), selected_movie$description)
+          p(strong("Description: "), selected_movie$description),
+          p(strong("Cast: "), selected_movie$cast),
+          p(strong("Director: "), selected_movie$director)
         )
       })
     }
