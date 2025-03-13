@@ -34,6 +34,10 @@ imdb_top_1000 <- read_csv("data/imdb_top_1000.csv") %>% clean_names()
 disney <- read_csv("data/movie_infoboxes_clean_final.csv") %>%  clean_names()
 ```
 
+```{r}
+write.csv(netflix_clean, "data/netflix_clean.csv", row.names=FALSE)
+```
+
 
 
 Laiba:
@@ -499,29 +503,6 @@ disney_budget %>%
 
 #Between 2020-2023, the movie with the highest rating has the lowest budget of just 12.5 million. The movie with the lowest rating (4.3) was Artemis Fowl with a budget of 125 million. 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-write.csv(netflix_clean, "data/netflix_clean.csv", row.names=FALSE)
-```
-
-
-
-
-
-
 
 
 
