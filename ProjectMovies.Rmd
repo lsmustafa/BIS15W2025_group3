@@ -50,7 +50,7 @@ glimpse(netflix)
 
 ```
 
-
+Cleaning
 ```{r}
 netflix_clean <- netflix %>% 
   separate(date_added, into= c("day_added","year_added"), sep = ", ") %>% 
@@ -90,7 +90,7 @@ netflix_clean %>%
 ```
 
 
-
+Create a plot showing the Number of Movies by Rating in the United States
 ```{r}
 netflix %>% 
   filter(country=="United States") %>% 
@@ -100,6 +100,8 @@ netflix %>%
   coord_flip()+
   labs(title= "Number of Movies by Rating in the United States")
 ```
+
+Number of international movies by Rating
 ```{r}
 netflix %>% 
   filter(country!="United States") %>% 
@@ -112,7 +114,7 @@ netflix %>%
        y="Count")
 ```
 
-
+When were most titles added to Netflix?
 ```{r}
 netflix_clean %>%
   mutate(year_added = as.numeric(year_added)) %>% 
@@ -127,7 +129,7 @@ netflix_clean %>%
 ```
 
 
-
+Show releases and ratings by decade. 
 ```{r}
  netflix %>%
   select(title, rating, release_year) %>% 
@@ -143,9 +145,9 @@ netflix_clean %>%
        fill="Rating")
 
 ```
-Show a Distribution of Moview Durations.
+
+Show a Distribution of Movie Durations.
 ```{r}
-# density plot of durations
 netflix_clean %>% 
   filter(type=="Movie") %>% 
 ggplot(aes(x = duration_mins)) +
@@ -156,7 +158,6 @@ ggplot(aes(x = duration_mins)) +
 
 Display the Number of Netflix Releases by Year and Month.
 ```{r}
-# heatmap of releases, fix axis titles on x
 netflix_clean %>%
   separate(day_added, into= c("month_added","date_added"), sep = " ") %>% 
   count(year_added, month_added) %>% 
@@ -169,20 +170,33 @@ ggplot(aes(x = month_added, y = year_added, fill = n)) +
 ```
 
 Show the Range of Movie Durations by Decade.
-
 ```{r}
 netflix_clean %>%
-  filter(type=="Movie") %>% 
-  mutate(decade = floor(release_year / 10) * 10) %>%
-  ggplot(aes(x = factor(decade), y = duration_mins, fill = factor(decade))) +
-  geom_boxplot(alpha = 0.7) +
-  labs(title = "Range of Movie Duration by Decade", x = "Decade", y = "Duration (minutes)") +
-  theme_minimal()
+  filter(!is.na(cast) & str_detect(country, "United States")) %>%  
+  separate_rows(cast, sep = ", ") %>%  
+  mutate(cast = str_trim(cast)) %>%  
+  filter(cast != "") %>% 
+  count(cast, sort = TRUE) %>% 
+  filter(cast != "NA") %>%  
+  top_n(10) 
 ```
 
 ```{r}
-netflix_clean %>% 
-  # actor with most netflix appearances
+netflix_clean %>%
+  filter(!is.na(cast) & str_detect(country, "United States")) %>%  
+  separate_rows(cast, sep = ", ") %>%  
+  mutate(cast = str_trim(cast)) %>%  
+  filter(cast != "") %>% 
+  count(cast, sort = TRUE) %>% 
+  filter(cast != "NA") %>%  
+  top_n(10) %>% 
+ggplot(aes(x = reorder(cast, n), y = n, fill = cast)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(title = "Top 10 Most Featured American Actors on Netflix",
+       x = "Actor",
+       y = "Number of Appearances") +
+  theme_minimal() 
 ```
 
 
