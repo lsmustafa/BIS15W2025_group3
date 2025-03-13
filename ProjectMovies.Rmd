@@ -169,7 +169,7 @@ ggplot(aes(x = month_added, y = year_added, fill = n)) +
   theme(axis.text.x=element_text(angle=60, hjust=1))
 ```
 
-Show the Range of Movie Durations by Decade.
+Which actors appear most on Netflix?
 ```{r}
 netflix_clean %>%
   filter(!is.na(cast) & str_detect(country, "United States")) %>%  
